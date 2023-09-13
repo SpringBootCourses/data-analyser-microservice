@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<consumer>
+    <groupId>1</groupId>
+    <keyDeserializer>org.apache.kafka.common.serialization.StringDeserializer
+    </keyDeserializer>
+    <valueDeserializer>
+        org.apache.kafka.common.serialization.StringDeserializer
+    </valueDeserializer>
+    <trustedPackages>*</trustedPackages>
+</consumer>
