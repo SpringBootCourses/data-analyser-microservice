@@ -26,12 +26,12 @@ public class KafkaDataReceiverImpl implements KafkaDataReceiver {
 
     @Override
     public void fetch() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class,
+                        localDateTimeDeserializer)
+                .create();
         receiver.receive()
                 .subscribe(r -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(LocalDateTime.class,
-                                    localDateTimeDeserializer)
-                            .create();
                     Data data = gson
                             .fromJson(r.value().toString(), Data.class);
                     kafkaDataService.handle(data);
