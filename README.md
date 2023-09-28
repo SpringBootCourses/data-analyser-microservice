@@ -11,6 +11,8 @@ with Apache Kafka.
 
 To start an application you need to pass variables to `.env` file.
 
+You can find Docker compose file in `docker/docker-compose.yaml`.
+
 Application is running on port `8082`.
 
 All insignificant features (checkstyle, build check, dto validation) are not
