@@ -72,3 +72,13 @@ services:
       - '5437:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2-rc-alpine
+    restart: always
+    container_name: redis
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis-data:/data
