@@ -7,6 +7,9 @@ This application receives data
 from [Data generator service](https://github.com/IlyaLisov/data-generator-microservice)
 with Apache Kafka.
 
+Next, data is processed
+by [Data store service](https://github.com/IlyaLisov/data-store-microservice).
+
 ### Usage
 
 To start an application you need to pass variables to `.env` file.
