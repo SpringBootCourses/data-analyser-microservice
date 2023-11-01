@@ -13,6 +13,8 @@ volumes:
     driver: local
   zookeeper-data:
     driver: local
+  debezium-data:
+    driver: local
 
 services:
   generator:
@@ -21,8 +23,9 @@ services:
       - app
     depends_on:
       - kafka
-    env_file:
-      - .env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - KAFKA_SUBSCRIBED_TOPICS=${KAFKA_SUBSCRIBED_TOPICS}
     ports:
       - '8081:8081'
 
@@ -33,17 +36,39 @@ services:
     depends_on:
       - postgres
       - kafka
-    env_file:
-      - .env
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - KAFKA_SUBSCRIBED_TOPICS=${KAFKA_SUBSCRIBED_TOPICS}
+      - HOST=${HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - '8082:8082'
+
+  store:
+    image: 'ilyalisov/data-store-microservice:latest'
+    networks:
+      - app
+    depends_on:
+      - debezium
+      - redis
+      - kafka
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - DEBEZIUM_KAFKA_BROKER_ID=${KAFKA_BROKER_ID}
+    ports:
+      - '8083:8083'
 
   zookeeper:
     image: 'confluentinc/cp-zookeeper:latest'
     networks:
       - app
-    env_file:
-      - .env
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_CLIENT_PORT}
+      - ZOOKEEPER_TICK_TIME=${ZOOKEEPER_TICK_TIME}
     ports:
       - '2181:2181'
     volumes:
@@ -55,8 +80,12 @@ services:
       - app
     depends_on:
       - zookeeper
-    env_file:
-      - .env
+    environment:
+      - KAFKA_BROKER_ID=${KAFKA_BROKER_ID}
+      - KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
+      - KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
     ports:
       - '9092:9092'
     volumes:
@@ -70,6 +99,10 @@ services:
       - .env
     ports:
       - '5437:5432'
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -84,3 +117,24 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-data:/data
+
+  debezium:
+    image: debezium/connect:2.4.0.Final
+    networks:
+      - app
+    depends_on:
+      - kafka
+    environment:
+      - BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS}
+      - GROUP_ID=${DEBEZIUM_KAFKA_BROKER_ID}
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    user: root
+#    command:
+#      - bash
+#      - -c
+#      - "cd /on-startup; ls; ./run.sh"
+    volumes:
+      - debezium-data:/debezium/data
+      - ./conf/:/on-startup/
