@@ -24,6 +24,10 @@ presented.
 #### Example:
 
 ```agsl
+HOST=localhost:5437
+POSTGRES_DB=sensor_data
+POSTGRES_USERNAME=postgres
+POSTGRES_PASSWORD=postgres
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 KAFKA_SUBSCRIBED_TOPICS=data-temperature,data-power,data-voltage
 ```
