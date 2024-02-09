@@ -14,23 +14,14 @@ by [Data store service](https://github.com/IlyaLisov/data-store-microservice).
 
 To start an application you need to pass variables to `.env` file.
 
+You can use example `.env.example` file with some predefined environments.
+
 You can find Docker compose file in `docker/docker-compose.yaml`.
 
 Application is running on port `8082`.
 
 All insignificant features (checkstyle, build check, dto validation) are not
 presented.
-
-#### Example:
-
-```agsl
-HOST=localhost:5437
-POSTGRES_DB=sensor_data
-POSTGRES_USERNAME=postgres
-POSTGRES_PASSWORD=postgres
-KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-KAFKA_SUBSCRIBED_TOPICS=data-temperature,data-power,data-voltage
-```
 
 Just after startup application will try to connect to Apache Kafka and begin to
 listen topics from `KAFKA_SUBSCRIBED_TOPICS`.
