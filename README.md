@@ -38,9 +38,7 @@ It contains all needed configs.
 ```shell
 cd /on-startup/
 
-curl -i -X POST -H "Accept:application/json" -H \
-"Content-Type:application/json"  http://localhost:8083/connectors/ -d \
-@postgres-connector.json
+sh run.sh
 ```
 
 Note that all services must be in the same network to communicate with each
